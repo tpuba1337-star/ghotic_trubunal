@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Gothic Tribunal - C2 English Debate Game</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cinzel & Cormorant Garamond for Gothic Elegance, Inter for UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#0a080c',
+                        gothicDark: '#120d16',
+                        gothicCard: '#1a1320',
+                        crimson: '#8b0000',
+                        brightCrimson: '#dc2626',
+                        agedGold: '#d4af37',
+                        paleGold: '#f3e5ab',
+                        parchment: '#e2d7c5'
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        gothic: ['Cormorant Garamond', 'serif'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0a080c;
+            color: #e2d7c5;
+            font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(circle at 50% 20%, #1e1028 0%, #0a080c 70%);
+            min-height: 100vh;
+        }
+
+        .gold-border {
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(212, 175, 55, 0.05);
+        }
+
+        .gold-border-glow {
+            border: 1px solid rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.25), inset 0 0 15px rgba(212, 175, 55, 0.1);
+        }
+
+        .crimson-glow {
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.5);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a080c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 3px;
+        }
+
+        .tab-active {
+            border-bottom: 2px solid #d4af37;
+            color: #d4af37;
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        /* Gothic Divider */
+        .gothic-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #d4af37;
+            margin: 1.5rem 0;
+        }
+        .gothic-divider::before, .gothic-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        .gothic-divider:not(:empty)::before {
+            margin-right: .75em;
+        }
+        .gothic-divider:not(:empty)::after {
+            margin-left: .75em;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col justify-between min-h-screen">
+
+    <!-- Header Section -->
+    <header class="max-w-6xl mx-auto w-full text-center mb-8 relative">
+        <div class="inline-block px-4 py-1 text-xs uppercase tracking-widest text-agedGold border border-agedGold/30 rounded-full mb-3 bg-gothicDark/80">
+            C2 Proficiency • Advanced Rhetoric & Debate
+        </div>
+        <h1 class="font-cinzel text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-paleGold via-agedGold to-amber-700 tracking-wider uppercase mb-2 drop-shadow-md">
+            The Gothic Tribunal
+        </h1>
+        <p class="font-gothic text-xl md:text-2xl text-parchment/80 italic max-w-2xl mx-auto">
+            "Where myth meets moral hazard, and monsters plead their case."
+        </p>
+        
+        <!-- Quick Action Header Bar -->
+        <div class="mt-6 flex justify-center gap-4">
+            <button onclick="toggleVaultModal()" class="px-4 py-2 bg-gothicCard hover:bg-gothicDark text-agedGold border border-agedGold/40 rounded-lg text-sm font-cinzel transition-all duration-300 flex items-center gap-2 gold-border hover:border-agedGold">
+                <i class="fa-solid fa-book-bookmark"></i> Vocabulary Vault (<span id="vault-count">12</span>)
+            </button>
+            <button onclick="playGavelSound()" class="px-4 py-2 bg-gothicCard hover:bg-gothicDark text-parchment border border-zinc-700 rounded-lg text-sm font-cinzel transition-all duration-300 flex items-center gap-2">
+                <i class="fa-solid fa-gavel"></i> Gavel Sound
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="max-w-6xl mx-auto w-full flex-grow flex flex-col">
+        
+        <!-- Navigation Tabs / Steps -->
+        <div class="grid grid-cols-3 mb-6 gold-border rounded-xl bg-gothicDark/90 overflow-hidden divide-x divide-agedGold/20 text-center font-cinzel text-sm md:text-base">
+            <button id="tab-step1" onclick="switchStep(1)" class="py-3.5 px-2 transition-all tab-active flex items-center justify-center gap-2">
+                <span class="w-6 h-6 rounded-full border border-current flex items-center justify-center text-xs">1</span>
+                <span class="hidden sm:inline">Role & Case</span>
+            </button>
+            <button id="tab-step2" onclick="switchStep(2)" class="py-3.5 px-2 transition-all text-parchment/60 hover:text-agedGold flex items-center justify-center gap-2">
+                <span class="w-6 h-6 rounded-full border border-current flex items-center justify-center text-xs">2</span>
+                <span class="hidden sm:inline">Preparation & Speech</span>
+            </button>
+            <button id="tab-step3" onclick="switchStep(3)" class="py-3.5 px-2 transition-all text-parchment/60 hover:text-agedGold flex items-center justify-center gap-2">
+                <span class="w-6 h-6 rounded-full border border-current flex items-center justify-center text-xs">3</span>
+                <span class="hidden sm:inline">Verdict & Evaluation</span>
+            </button>
+        </div>
+
+        <!-- STEP 1: ROLE & CASE SELECTION -->
+        <section id="step1" class="space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Stance Selection -->
+                <div class="bg-gothicCard p-6 rounded-2xl gold-border flex flex-col justify-between">
+                    <div>
+                        <h2 class="font-cinzel text-xl text-agedGold mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-scale-balanced"></i> Choose Your Stance
+                        </h2>
+                        <div class="space-y-3">
+                            <label class="block p-4 rounded-xl border border-zinc-800 bg-obsidian/60 cursor-pointer hover:border-agedGold/50 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" name="stance" value="defense" checked onchange="setStance('defense')" class="accent-agedGold scale-125">
+                                    <div>
+                                        <div class="font-cinzel text-paleGold font-semibold">Defense Counsel for Monsters</div>
+                                        <div class="text-xs text-parchment/70 mt-0.5">Argue with sophisticated rhetoric to excuse, reframe, or exonerate the creature's actions.</div>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="block p-4 rounded-xl border border-zinc-800 bg-obsidian/60 cursor-pointer hover:border-agedGold/50 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" name="stance" value="prosecution" onchange="setStance('prosecution')" class="accent-crimson scale-125">
+                                    <div>
+                                        <div class="font-cinzel text-paleGold font-semibold">Prosecutor for Humanity</div>
+                                        <div class="text-xs text-parchment/70 mt-0.5">Dissect the creature's moral hazard, systemic harm, and logical fallacies with surgical precision.</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button onclick="generateRandomCase()" class="w-full py-3.5 bg-gradient-to-r from-crimson to-red-950 hover:from-brightCrimson hover:to-crimson text-paleGold font-cinzel tracking-wider rounded-xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-2 border border-red-500/30">
+                            <i class="fa-solid fa-dice-d20"></i> Summon Random Gothic Case
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Case Card -->
+                <div class="bg-gothicCard p-6 rounded-2xl gold-border flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-5 text-agedGold text-9xl pointer-events-none font-cinzel">
+                        ⚖️
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-xs font-cinzel uppercase tracking-widest text-agedGold px-2.5 py-1 bg-black/40 rounded border border-agedGold/30" id="case-category">
+                                Transhumanist Ethics
+                            </span>
+                            <span class="text-xs text-parchment/60 font-mono" id="case-id">CASE #709</span>
+                        </div>
+                        <h3 class="font-cinzel text-2xl text-paleGold mb-3 font-bold" id="case-title">
+                            Frankenstein's Creature & The Responsibility of Creation
+                        </h3>
+                        <p class="font-gothic text-lg text-parchment/90 leading-relaxed mb-4 italic border-l-2 border-agedGold/50 pl-4 py-1" id="case-description">
+                            "The creature demands a companion or threatens societal havoc. Is Victor Frankenstein morally negligent for abandoning his creation, or is the creature fully autonomous and morally responsible for its atrocious vengeance?"
+                        </p>
+                    </div>
+
+                    <div class="space-y-2 bg-obsidian/70 p-4 rounded-xl border border-zinc-800">
+                        <div class="text-xs uppercase font-cinzel text-agedGold tracking-wider">Your Assigned Angle:</div>
+                        <p class="text-sm text-parchment/80" id="stance-prompt">
+                            Reframe the monster's vengeance not as malice, but as an inevitable psychological byproduct of systemic social rejection and parental neglect.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mandatory Vocabulary for Case -->
+            <div class="bg-gothicCard p-6 rounded-2xl gold-border">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+                    <div>
+                        <h3 class="font-cinzel text-lg text-agedGold flex items-center gap-2">
+                            <i class="fa-solid fa-[#d4af37] fa-scroll"></i> Required C2 Lexicon & Rhetorical Arsenal
+                        </h3>
+                        <p class="text-xs text-parchment/60">Click any card to reveal C2 definition and usage. You must integrate these into your speech.</p>
+                    </div>
+                    <span class="text-xs text-agedGold/80 bg-black/40 px-3 py-1 rounded-full border border-agedGold/20 font-mono">
+                        Target: Minimum 3 in speech
+                    </span>
+                </div>
+
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4" id="case-vocab-grid">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="switchStep(2)" class="px-8 py-3.5 bg-agedGold hover:bg-yellow-600 text-obsidian font-cinzel font-bold tracking-wider rounded-xl transition-all shadow-lg flex items-center gap-2">
+                    Proceed to Preparation <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 2: PREPARATION & SPEECH -->
+        <section id="step2" class="space-y-6 hidden">
+            <div class="grid md:grid-cols-3 gap-6">
+                
+                <!-- Timer Column -->
+                <div class="bg-gothicCard p-6 rounded-2xl gold-border flex flex-col justify-between text-center">
+                    <div>
+                        <h3 class="font-cinzel text-lg text-agedGold mb-2">Speech Preparation Timer</h3>
+                        <p class="text-xs text-parchment/60 mb-6">3 Minutes to structure your opening argument</p>
+
+                        <!-- Display -->
+                        <div class="relative py-6 bg-obsidian rounded-2xl border border-agedGold/30 my-4 shadow-inner">
+                            <div class="font-mono text-5xl md:text-6xl text-paleGold tracking-widest font-bold" id="timer-display">
+                                03:00
+                            </div>
+                            <div class="text-xs uppercase text-agedGold/60 font-cinzel mt-2" id="timer-status">
+                                Ready
+                            </div>
+                        </div>
+
+                        <!-- Timer Controls -->
+                        <div class="grid grid-cols-3 gap-2 mt-4">
+                            <button onclick="startTimer()" class="py-2.5 bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 border border-emerald-600/40 rounded-lg font-cinzel text-xs font-semibold transition-all">
+                                <i class="fa-solid fa-play"></i> Start
+                            </button>
+                            <button onclick="pauseTimer()" class="py-2.5 bg-amber-900/60 hover:bg-amber-800 text-amber-200 border border-amber-600/40 rounded-lg font-cinzel text-xs font-semibold transition-all">
+                                <i class="fa-solid fa-pause"></i> Pause
+                            </button>
+                            <button onclick="resetTimer()" class="py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-600/40 rounded-lg font-cinzel text-xs font-semibold transition-all">
+                                <i class="fa-solid fa-rotate-left"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-zinc-800 text-left">
+                        <span class="text-xs uppercase font-cinzel text-agedGold block mb-2">Rhetorical Tips for C2:</span>
+                        <ul class="text-xs text-parchment/70 space-y-1.5 list-disc list-inside font-gothic text-sm">
+                            <li>Employ *hypothetical inversion* ("Had humanity not...").</li>
+                            <li>Use *litotes* for subtle irony ("Not without malice...").</li>
+                            <li>Avoid absolute statements; nuance with modal verbs.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Speech Checklist & Notes -->
+                <div class="md:col-span-2 bg-gothicCard p-6 rounded-2xl gold-border flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-cinzel text-xl text-paleGold flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-agedGold"></i> Rhetorical Checklist
+                            </h3>
+                            <span class="text-xs text-parchment/60">Check off keywords as you present</span>
+                        </div>
+
+                        <!-- Vocab Checklist -->
+                        <div class="mb-6 bg-obsidian/60 p-4 rounded-xl border border-zinc-800">
+                            <div class="text-xs font-cinzel text-agedGold uppercase mb-2">Mandatory Lexicon Tracker:</div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="speech-vocab-checklist">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Speech Notes Textarea -->
+                        <div>
+                            <label class="block text-xs font-cinzel uppercase text-agedGold mb-2">Draft Your Key Arguments & Openers:</label>
+                            <textarea id="speech-notes" rows="6" class="w-full bg-obsidian p-4 rounded-xl border border-zinc-800 text-parchment text-sm focus:outline-none focus:border-agedGold/70 font-gothic text-base leading-relaxed resize-none" placeholder="Draft your persuasive hooks, counter-arguments, and concluding flourish here..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-between items-center pt-4 border-t border-zinc-800">
+                        <button onclick="switchStep(1)" class="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-parchment font-cinzel text-xs rounded-lg transition-all">
+                            <i class="fa-solid fa-arrow-left"></i> Back to Case
+                        </button>
+                        <button onclick="finishSpeech()" class="px-8 py-3 bg-gradient-to-r from-agedGold to-yellow-600 text-obsidian font-cinzel font-bold text-sm rounded-xl transition-all shadow-lg flex items-center gap-2">
+                            Deliver Speech & Proceed to Verdict <i class="fa-solid fa-gavel"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 3: VERDICT & EVALUATION -->
+        <section id="step3" class="space-y-6 hidden">
+            <div class="bg-gothicCard p-6 md:p-8 rounded-2xl gold-border max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <span class="text-xs uppercase font-cinzel tracking-widest text-brightCrimson bg-red-950/60 px-3 py-1 rounded-full border border-red-800/40">
+                        The Final Judgment
+                    </span>
+                    <h2 class="font-cinzel text-3xl md:text-4xl text-paleGold mt-2">Evaluation Rubric & Debrief</h2>
+                    <p class="font-gothic text-lg text-parchment/70 italic mt-1">Assess the speech based on C2 proficiency benchmarks.</p>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Criterion 1 -->
+                    <div class="bg-obsidian/70 p-5 rounded-xl border border-zinc-800">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-cinzel text-paleGold font-semibold text-sm md:text-base flex items-center gap-2">
+                                <i class="fa-solid fa-gem text-agedGold"></i> Lexical Precision & Sophistication
+                            </label>
+                            <span class="font-mono text-agedGold font-bold" id="score-lexical-val">8/10</span>
+                        </div>
+                        <input type="range" min="1" max="10" value="8" id="score-lexical" oninput="updateScoreDisplay()" class="w-full accent-agedGold cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-parchment/40 mt-1 font-mono">
+                            <span>Pedestrian / Basic</span>
+                            <span>C1 Proficient</span>
+                            <span>C2 Masterful & Nuanced</span>
+                        </div>
+                    </div>
+
+                    <!-- Criterion 2 -->
+                    <div class="bg-obsidian/70 p-5 rounded-xl border border-zinc-800">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-cinzel text-paleGold font-semibold text-sm md:text-base flex items-center gap-2">
+                                <i class="fa-solid fa-masks-theater text-agedGold"></i> Rhetorical Eloquence & Gravitas
+                            </label>
+                            <span class="font-mono text-agedGold font-bold" id="score-rhetoric-val">9/10</span>
+                        </div>
+                        <input type="range" min="1" max="10" value="9" id="score-rhetoric" oninput="updateScoreDisplay()" class="w-full accent-agedGold cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-parchment/40 mt-1 font-mono">
+                            <span>Hesitant / Monotone</span>
+                            <span>Persuasive</span>
+                            <span>Hypnotic / High Gravitas</span>
+                        </div>
+                    </div>
+
+                    <!-- Criterion 3 -->
+                    <div class="bg-obsidian/70 p-5 rounded-xl border border-zinc-800">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-cinzel text-paleGold font-semibold text-sm md:text-base flex items-center gap-2">
+                                <i class="fa-solid fa-brain text-agedGold"></i> Argumentation & Philosophical Depth
+                            </label>
+                            <span class="font-mono text-agedGold font-bold" id="score-depth-val">8/10</span>
+                        </div>
+                        <input type="range" min="1" max="10" value="8" id="score-depth" oninput="updateScoreDisplay()" class="w-full accent-agedGold cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-parchment/40 mt-1 font-mono">
+                            <span>Superficial</span>
+                            <span>Logical</span>
+                            <span>Sophisticated / Multi-layered</span>
+                        </div>
+                    </div>
+
+                    <!-- Feedback / Teacher Debrief Notes -->
+                    <div>
+                        <label class="block text-xs font-cinzel uppercase text-agedGold mb-2">Tribunal Observations & Corrections:</label>
+                        <textarea id="eval-feedback" rows="4" class="w-full bg-obsidian p-4 rounded-xl border border-zinc-800 text-parchment text-sm focus:outline-none focus:border-agedGold/70 font-gothic text-base resize-none" placeholder="Note down outstanding metaphors, mispronunciations, or alternative C2 phrases..."></textarea>
+                    </div>
+
+                    <!-- Overall Score & Result -->
+                    <div class="text-center p-6 bg-gothicDark rounded-xl gold-border-glow my-6">
+                        <div class="text-xs uppercase font-cinzel text-agedGold tracking-widest mb-1">Total Tribunal Rating</div>
+                        <div class="font-cinzel text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-paleGold via-agedGold to-amber-500" id="total-score-display">
+                            25 / 30
+                        </div>
+                        <div class="text-sm font-gothic italic text-parchment/80 mt-2" id="verdict-title">
+                            "Verdict: Acquitted with High Distinction"
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+                        <button onclick="playGavelSound(); switchStep(1); generateRandomCase();" class="px-8 py-3.5 bg-gradient-to-r from-crimson to-red-900 text-paleGold font-cinzel font-bold text-sm rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 border border-red-500/30">
+                            <i class="fa-solid fa-rotate"></i> Begin Next Case
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- VOCABULARY VAULT MODAL / DRAWER -->
+    <div id="vault-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-gothicCard gold-border-glow rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden">
+            <div class="p-6 border-b border-zinc-800 flex justify-between items-center">
+                <div>
+                    <h3 class="font-cinzel text-2xl text-paleGold flex items-center gap-2">
+                        <i class="fa-solid fa-book-skull text-agedGold"></i> C2 Gothic Vocabulary Vault
+                    </h3>
+                    <p class="text-xs text-parchment/60">Comprehensive lexicon for gothic debate & analysis</p>
+                </div>
+                <button onclick="toggleVaultModal()" class="text-parchment/60 hover:text-agedGold text-2xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-4" id="vault-word-list">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="p-4 border-t border-zinc-800 bg-obsidian/80 text-center">
+                <button onclick="toggleVaultModal()" class="px-6 py-2 bg-zinc-800 hover:bg-zinc-700 text-parchment font-cinzel text-xs rounded-lg">
+                    Close Vault
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center text-xs text-parchment/40 font-cinzel border-t border-zinc-900 pt-6">
+        The Gothic Tribunal • C2 Proficiency English Pedagogy Tool
+    </footer>
+
+    <!-- JavaScript Game Engine -->
+    <script>
+        // WEB AUDIO API SOUND SYSTEM
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playGavelSound() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            // Low thud frequency for gavel sound
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.3);
+
+            gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playChimeSound() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 note
+            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.5); // A5
+
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.8);
+        }
+
+        // DATABASE OF C2 GOTHIC CASES
+        const cases = [
+            {
+                id: "CASE #709",
+                category: "Transhumanist Ethics",
+                title: "Frankenstein's Creature & The Responsibility of Creation",
+                description: "The creature demands a companion or threatens societal havoc. Is Victor Frankenstein morally negligent for abandoning his creation, or is the creature fully autonomous and morally responsible for its atrocious vengeance?",
+                defensePrompt: "Reframe the monster's vengeance not as innate malice, but as an inevitable psychological byproduct of systemic social rejection and parental neglect.",
+                prosecutionPrompt: "Argue that despite creator negligence, autonomous moral agents cannot circumvent accountability for terrorizing innocent human lives.",
+                vocab: ["anachronism", "moral hazard", "predatory", "tacitly"]
+            },
+            {
+                id: "CASE #402",
+                category: "Environmental & Colonial Exploitation",
+                title: "Count Dracula & Cultural Assimilation",
+                description: "Count Dracula has purchased vast real estate across London to feed upon modern urbanites. Defense argues vampires are an ecological apex predator regulating human overpopulation; prosecution claims systematic predatory exploitation.",
+                defensePrompt: "Present vampirism as the ultimate sustainable, waste-free lifestyle that exposes Victorian moral hypocrisy.",
+                prosecutionPrompt: "Expose Count Dracula's actions as predatory feudalism masquerading as aristocracy.",
+                vocab: ["ubiquitous", "sanguine", "circumvent", "fallacious"]
+            },
+            {
+                id: "CASE #911",
+                category: "Property & Psychological Trauma",
+                title: "Poltergeist Squatters vs. Generational Estate",
+                description: "A 300-year-old spectral entity refuses to vacate a historic manor, driving new buyers insane. Is spectral habitation a valid form of adverse possession (squatters' rights), or an unaddressed manifestation of generational trauma?",
+                defensePrompt: "Argue that centuries of uncompensated spectral labor grant the ghost inherent tenure over the physical grounds.",
+                prosecutionPrompt: "Demonstrate that psychological terrorization cannot be sanitized under legal technicalities of historical occupancy.",
+                vocab: ["macabre", "ephemeral", "fallacious", "ubiquitous"]
+            },
+            {
+                id: "CASE #305",
+                category: "Workplace Liability & Lycanthropy",
+                title: "The Werewolf Executive & Monthly Moon Leave",
+                description: "A high-ranking corporate executive transforms into a violent lycanthrope during the full moon, causing severe office property damage. The executive sues for religious/medical discrimination under employment law.",
+                defensePrompt: "Defend lycanthropy as an unchosen neurological condition requiring reasonable corporate accommodation rather than termination.",
+                prosecutionPrompt: "Argue that the extreme physical hazard posed during lunar phases creates an insurmountable liability that invalidates corporate protection.",
+                vocab: ["predatory", "circumvent", "moral hazard", "macabre"]
+            }
+        ];
+
+        // MASTER C2 VOCABULARY DATABASE
+        const masterVocab = {
+            "macabre": {
+                pos: "adj.",
+                def: "Disturbing because concerned with or causing a fear of death.",
+                example: "The defense presented a macabre justification for the creature's morbid habits."
+            },
+            "anachronism": {
+                pos: "noun",
+                def: "A thing belonging or appropriate to a period other than that in which it exists.",
+                example: "Holding a 16th-century vampire to modern corporate governance is an egregious anachronism."
+            },
+            "predatory": {
+                pos: "adj.",
+                def: "Seeking to exploit or oppress others for personal gain.",
+                example: "We must distinguish natural survival from predatory malice."
+            },
+            "ubiquitous": {
+                pos: "adj.",
+                def: "Present, appearing, or found everywhere.",
+                example: "Fear of the nocturnal creature was ubiquitous throughout the province."
+            },
+            "circumvent": {
+                pos: "verb",
+                def: "Find a way around (an obstacle or legal constraint).",
+                example: "The defense attempted to circumvent traditional moral accountability."
+            },
+            "sanguine": {
+                pos: "adj.",
+                def: "Optimistic, or blood-red in color/nature.",
+                example: "Despite the grim evidence, the barrister remained remarkably sanguine."
+            },
+            "ephemeral": {
+                pos: "adj.",
+                def: "Lasting for a very short time; fleeting.",
+                example: "Human life is ephemeral when measured against immortal specters."
+            },
+            "tacitly": {
+                pos: "adv.",
+                def: "In a way that is understood or implied without being directly stated.",
+                example: "Society tacitly accepted the monster's presence until tragedy struck."
+            },
+            "fallacious": {
+                pos: "adj.",
+                def: "Based on a mistaken belief or unsound argument.",
+                example: "The prosecution's premise rests on a fundamentally fallacious generalization."
+            },
+            "moral hazard": {
+                pos: "noun",
+                def: "A situation where one party gets involved in a risky event knowing that it is protected.",
+                example: "Exonerating Victor Frankenstein creates a severe moral hazard for future scientific endeavors."
+            },
+            "sophistry": {
+                pos: "noun",
+                def: "The use of clever but false arguments, especially with the intention of deceiving.",
+                example: "I urge the tribunal not to be swayed by the defense attorney's elegant sophistry."
+            },
+            "exonerate": {
+                pos: "verb",
+                def: "Absolve someone from blame for a fault or wrongdoing.",
+                example: "Tragic origins cannot completely exonerate violent repercussions."
+            }
+        };
+
+        // GAME STATE VARIABLES
+        let currentCaseIndex = 0;
+        let currentStance = 'defense';
+        let timerSeconds = 180;
+        let timerInterval = null;
+
+        // INITIALIZATION
+        window.onload = function() {
+            renderVaultModal();
+            loadCase(0);
+            updateScoreDisplay();
+        };
+
+        // STANCE SWITCH
+        function setStance(stance) {
+            currentStance = stance;
+            const activeCase = cases[currentCaseIndex];
+            const promptEl = document.getElementById('stance-prompt');
+            promptEl.innerText = stance === 'defense' ? activeCase.defensePrompt : activeCase.prosecutionPrompt;
+        }
+
+        // CASE GENERATOR
+        function generateRandomCase() {
+            playChimeSound();
+            let newIndex = Math.floor(Math.random() * cases.length);
+            if (newIndex === currentCaseIndex) {
+                newIndex = (currentCaseIndex + 1) % cases.length;
+            }
+            currentCaseIndex = newIndex;
+            loadCase(currentCaseIndex);
+        }
+
+        function loadCase(index) {
+            const activeCase = cases[index];
+            document.getElementById('case-id').innerText = activeCase.id;
+            document.getElementById('case-category').innerText = activeCase.category;
+            document.getElementById('case-title').innerText = activeCase.title;
+            document.getElementById('case-description').innerText = `"${activeCase.description}"`;
+            
+            const promptEl = document.getElementById('stance-prompt');
+            promptEl.innerText = currentStance === 'defense' ? activeCase.defensePrompt : activeCase.prosecutionPrompt;
+
+            // Render Vocabulary Cards
+            const grid = document.getElementById('case-vocab-grid');
+            grid.innerHTML = '';
+
+            const speechChecklist = document.getElementById('speech-vocab-checklist');
+            speechChecklist.innerHTML = '';
+
+            activeCase.vocab.forEach(wordKey => {
+                const item = masterVocab[wordKey];
+                if (!item) return;
+
+                // Case Vocab Card
+                const card = document.createElement('div');
+                card.className = "p-3 bg-obsidian rounded-xl border border-zinc-800 hover:border-agedGold/60 transition-all cursor-pointer group";
+                card.onclick = () => toggleWordReveal(card);
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-cinzel text-paleGold font-bold text-sm">${wordKey}</span>
+                        <span class="text-[10px] text-agedGold font-mono">${item.pos}</span>
+                    </div>
+                    <div class="text-xs text-parchment/60 group-hover:text-parchment/90 transition-all line-clamp-2 italic">
+                        "${item.def}"
+                    </div>
+                    <div class="hidden mt-2 pt-2 border-t border-zinc-800 text-[11px] text-agedGold/90 font-gothic">
+                        Ex: ${item.example}
+                    </div>
+                `;
+                grid.appendChild(card);
+
+                // Speech Checklist item
+                const checkItem = document.createElement('label');
+                checkItem.className = "flex items-center gap-2 p-2 bg-gothicDark rounded-lg border border-zinc-800 cursor-pointer text-xs hover:border-agedGold/40";
+                checkItem.innerHTML = `
+                    <input type="checkbox" class="accent-agedGold scale-110">
+                    <span class="font-cinzel text-paleGold">${wordKey}</span>
+                `;
+                speechChecklist.appendChild(checkItem);
+            });
+        }
+
+        function toggleWordReveal(card) {
+            const exampleDiv = card.querySelector('div:last-child');
+            exampleDiv.classList.toggle('hidden');
+        }
+
+        // TAB NAVIGATION
+        function switchStep(stepNum) {
+            [1, 2, 3].forEach(n => {
+                document.getElementById(`step${n}`).classList.add('hidden');
+                const tab = document.getElementById(`tab-step${n}`);
+                tab.classList.remove('tab-active');
+                tab.classList.add('text-parchment/60');
+            });
+
+            document.getElementById(`step${stepNum}`).classList.remove('hidden');
+            const activeTab = document.getElementById(`tab-step${stepNum}`);
+            activeTab.classList.add('tab-active');
+            activeTab.classList.remove('text-parchment/60');
+        }
+
+        // TIMER SYSTEM
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            document.getElementById('timer-display').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (timerInterval) return;
+            document.getElementById('timer-status').innerText = 'Timer Running';
+            document.getElementById('timer-status').className = 'text-xs uppercase text-emerald-400 font-cinzel mt-2';
+            
+            timerInterval = setInterval(() => {
+                if (timerSeconds > 0) {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    pauseTimer();
+                    playChimeSound();
+                    document.getElementById('timer-status').innerText = 'Time Expired!';
+                    document.getElementById('timer-status').className = 'text-xs uppercase text-brightCrimson font-cinzel mt-2';
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            document.getElementById('timer-status').innerText = 'Paused';
+            document.getElementById('timer-status').className = 'text-xs uppercase text-amber-400 font-cinzel mt-2';
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerSeconds = 180;
+            updateTimerDisplay();
+            document.getElementById('timer-status').innerText = 'Ready';
+            document.getElementById('timer-status').className = 'text-xs uppercase text-agedGold/60 font-cinzel mt-2';
+        }
+
+        function finishSpeech() {
+            playGavelSound();
+            switchStep(3);
+        }
+
+        // EVALUATION / SCORE CALCULATOR
+        function updateScoreDisplay() {
+            const lex = parseInt(document.getElementById('score-lexical').value);
+            const rhe = parseInt(document.getElementById('score-rhetoric').value);
+            const dep = parseInt(document.getElementById('score-depth').value);
+
+            document.getElementById('score-lexical-val').innerText = `${lex}/10`;
+            document.getElementById('score-rhetoric-val').innerText = `${rhe}/10`;
+            document.getElementById('score-depth-val').innerText = `${dep}/10`;
+
+            const total = lex + rhe + dep;
+            document.getElementById('total-score-display').innerText = `${total} / 30`;
+
+            const titleEl = document.getElementById('verdict-title');
+            if (total >= 26) {
+                titleEl.innerText = '"Verdict: Masterful Oratory — Complete Exoneration / Conviction"';
+            } else if (total >= 20) {
+                titleEl.innerText = '"Verdict: Persuasive Argument — Acquitted with Conditions"';
+            } else if (total >= 14) {
+                titleEl.innerText = '"Verdict: Hung Jury — Rhetoric Requires Greater Precision"';
+            } else {
+                titleEl.innerText = '"Verdict: Overruled — Fallacious Argumentation"';
+            }
+        }
+
+        // VOCABULARY VAULT MODAL
+        function toggleVaultModal() {
+            const modal = document.getElementById('vault-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function renderVaultModal() {
+            const container = document.getElementById('vault-word-list');
+            container.innerHTML = '';
+            
+            const keys = Object.keys(masterVocab);
+            document.getElementById('vault-count').innerText = keys.length;
+
+            keys.forEach(key => {
+                const item = masterVocab[key];
+                const card = document.createElement('div');
+                card.className = "p-4 bg-obsidian rounded-xl border border-zinc-800 space-y-1";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-cinzel text-paleGold font-bold text-base">${key}</span>
+                        <span class="text-xs text-agedGold font-mono px-2 py-0.5 bg-black/40 rounded border border-agedGold/20">${item.pos}</span>
+                    </div>
+                    <p class="text-sm text-parchment/80 font-gothic">${item.def}</p>
+                    <p class="text-xs text-agedGold/80 italic pt-1">Example: "${item.example}"</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
